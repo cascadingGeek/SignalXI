@@ -1,0 +1,180 @@
+{
+  "version": 2,
+  "skills": {
+    "deploy-to-vercel": {
+      "source": "vercel-labs/agent-skills",
+      "commit": "5a37a6329fbad3666c3207392a6a7c0110e92efb",
+      "sourceType": "github",
+      "skillPath": "skills/deploy-to-vercel/SKILL.md",
+      "computedHash": "66b99dfa063b1c405155e9bffd99c04ca3e312e81b168d540b757bb194b7400a"
+    },
+    "fastapi": {
+      "source": "fastapi/fastapi",
+      "commit": "05e6df7e906c3decba377c37548019973f40bf15",
+      "sourceType": "github",
+      "skillPath": "fastapi/.agents/skills/fastapi/SKILL.md",
+      "computedHash": "141f0146e357365d518029ccc74e5b0a256f9a352573c65856780995d1bea52c"
+    },
+    "github-actions": {
+      "source": "callstackincubator/agent-skills",
+      "commit": "59e9d17446a248b21d86f078fcd0bd2d36db1ca4",
+      "sourceType": "github",
+      "skillPath": "skills/github-actions/SKILL.md",
+      "computedHash": "ad180ec4e5dbc0b73695c269cd9e1bae465222ab7afb27ea4df2c162efcaadee"
+    },
+    "langfuse": {
+      "source": "langfuse/skills",
+      "commit": "f0bcb13088b490c04b3f4870bace17f6d57b199c",
+      "sourceType": "github",
+      "skillPath": "skills/langfuse/SKILL.md",
+      "computedHash": "a35653229c8f110a1c950bce100edaf84870b8037dd59c940031e8434b9e15f0"
+    },
+    "langgraph-fundamentals": {
+      "source": "langchain-ai/langchain-skills",
+      "commit": "ab84b0b5a3164ee17eb78b0828e58c48186f54ce",
+      "sourceType": "github",
+      "skillPath": "skills/.legacy/langgraph-fundamentals/SKILL.md",
+      "computedHash": "96685d0e58c75ad2be40981e298218ef773b49f6359936d9e8e36be3fe5a6e9d"
+    },
+    "multi-stage-dockerfile": {
+      "source": "github/awesome-copilot",
+      "commit": "93fc8b9ee3ef56b9b5e7261e6ce92d314cb2c1cf",
+      "sourceType": "github",
+      "skillPath": "skills/multi-stage-dockerfile/SKILL.md",
+      "computedHash": "c74ad7dbfdc563e9a95308b7ff812882fa79872a097a2950c4f8346c815bdab6"
+    },
+    "nextjs-app-router-patterns": {
+      "source": "wshobson/agents",
+      "commit": "34e50fee32114afd9475f25d81492712f08cb71c",
+      "sourceType": "github",
+      "skillPath": "plugins/frontend-mobile-development/skills/nextjs-app-router-patterns/SKILL.md",
+      "computedHash": "39b84480d3a62355fd1199173dc70b97efe1daf6dbfae560cc7b85e127934a98"
+    },
+    "openapi-to-typescript": {
+      "source": "softaworks/agent-toolkit",
+      "commit": "3027f20f3181758385a1bb8c022d4041dfb4de84",
+      "sourceType": "github",
+      "skillPath": "skills/openapi-to-typescript/SKILL.md",
+      "computedHash": "25ce746e02c8c3bc81eeb594dcf2cd1dd5c9bada1cebe08d5d2f9295d659416c"
+    },
+    "openrouter-models": {
+      "source": "OpenRouterTeam/skills",
+      "commit": "a110aad6072364da5e8017efc7a7873262164b11",
+      "sourceType": "github",
+      "skillPath": "skills/openrouter-models/SKILL.md",
+      "computedHash": "0d6c3c19a3f07bcd568701fed22fb97babc2d0387b42aeaa7900ddd6b0f1a4a0"
+    },
+    "paystack-webhooks": {
+      "source": "rexedge/paystack",
+      "commit": "81a1daa6f27dcf2ff26923362c27e31bd86f37e5",
+      "sourceType": "github",
+      "skillPath": "skills/paystack-webhooks/SKILL.md",
+      "computedHash": "97f6f832a19ef22f6ba26825ccd3ece3a7a5173f9bda9307037863f64e156285"
+    },
+    "pwa-development": {
+      "source": "alinaqi/maggy",
+      "commit": "55aabe2493627e1de9cd09459d555181d66f3111",
+      "sourceType": "github",
+      "skillPath": "skills/pwa-development/SKILL.md",
+      "computedHash": "dfff1cfb9ced1ba365ac56c65d52eac9aed14783674e76374da3751d6ac8c251"
+    },
+    "pydantic": {
+      "source": "pydantic/skills",
+      "commit": "98f591c0886eb11df0bdd57804419e11439efc93",
+      "sourceType": "github",
+      "skillPath": "skills/pydantic/SKILL.md",
+      "computedHash": "434540e43897b5ad8db567d7a77bd71ec0522e10134aaa23941050ca7ff7e1e7"
+    },
+    "python-backend": {
+      "source": "yonatangross/orchestkit",
+      "commit": "e7832d802100780923c6d806561dccb53565a8bb",
+      "sourceType": "github",
+      "skillPath": "plugins/ork/skills/python-backend/SKILL.md",
+      "computedHash": "a68ce3dd9d22682642c835196b7ba885b9d3c4411a151cf0b36ca8277f347bf4"
+    },
+    "redis-connections": {
+      "source": "redis/agent-skills",
+      "commit": "74708dab4b3f81a9845803c3f642a4f7d443af69",
+      "sourceType": "github",
+      "skillPath": "skills/redis-connections/SKILL.md",
+      "computedHash": "4c6e3df793e22814caa266f6c3a02afe7268cdf980c5f6c446081d867c7d817b"
+    },
+    "redis-core": {
+      "source": "redis/agent-skills",
+      "commit": "74708dab4b3f81a9845803c3f642a4f7d443af69",
+      "sourceType": "github",
+      "skillPath": "skills/redis-core/SKILL.md",
+      "computedHash": "90a1693b597e61a3224a203661e26022f94d2c17cea1f659d826cd783aea34d5"
+    },
+    "shadcn": {
+      "source": "shadcn-ui/ui",
+      "commit": "055aa6b7837b1808456a24beb4c97a677864aa82",
+      "sourceType": "github",
+      "skillPath": "skills/shadcn/SKILL.md",
+      "computedHash": "388962d16c7a4f13aaeee0d8f128e50a87df8553d42ef7988c39c0e1c74a40e8"
+    },
+    "supabase": {
+      "source": "supabase/agent-skills",
+      "commit": "c9be0e931b7930f7d02126d04774d904c381e7d7",
+      "sourceType": "github",
+      "skillPath": "skills/supabase/SKILL.md",
+      "computedHash": "2fbff32fd63b7d31585cacf0ed43e5bf8d05dd20d6c0c751d256cb967a00eec1"
+    },
+    "supabase-postgres-best-practices": {
+      "source": "supabase/agent-skills",
+      "commit": "c9be0e931b7930f7d02126d04774d904c381e7d7",
+      "sourceType": "github",
+      "skillPath": "skills/supabase-postgres-best-practices/SKILL.md",
+      "computedHash": "3eb972c2d7c818e544e35cc33ea8d7147d4d78ae08142ef40037b0fbac7a2505"
+    },
+    "tailwind-design-system": {
+      "source": "wshobson/agents",
+      "commit": "34e50fee32114afd9475f25d81492712f08cb71c",
+      "sourceType": "github",
+      "skillPath": "plugins/frontend-mobile-development/skills/tailwind-design-system/SKILL.md",
+      "computedHash": "c807f0c9619e8c389879f55846c2e395956f1073ab6d01a93fbb30b340015ab1"
+    },
+    "tanstack-query": {
+      "source": "tanstack-skills/tanstack-skills",
+      "commit": "6f5521ecbdfbfa3d54d335eba6c8b4df0b804c03",
+      "sourceType": "github",
+      "skillPath": "plugins/tanstack-query/skills/tanstack-query/SKILL.md",
+      "computedHash": "b27696896a18acff7cb9099d753effb74bdf4b4339881f941fea4cca56abb1fa"
+    },
+    "uv": {
+      "source": "astral-sh/agent-plugins",
+      "commit": "855418fb9ebfada49a8345a5c3ada9db2cdc2419",
+      "sourceType": "github",
+      "skillPath": "plugins/astral/skills/uv/SKILL.md",
+      "computedHash": "dc731173401706ae12ce2e71d1b4b088149af9f0c5b7023301e11f0a16474380"
+    },
+    "vercel-react-best-practices": {
+      "source": "vercel-labs/agent-skills",
+      "commit": "5a37a6329fbad3666c3207392a6a7c0110e92efb",
+      "sourceType": "github",
+      "skillPath": "skills/react-best-practices/SKILL.md",
+      "computedHash": "7991ed4fbecdac23f47c1a40c243e00a212a9e7f3604db93959b3ae11dffe299"
+    },
+    "vitest": {
+      "source": "antfu/skills",
+      "commit": "4a6bb39e7b45e26402eb215393c51ccf5df1ca4c",
+      "sourceType": "github",
+      "skillPath": "skills/vitest/SKILL.md",
+      "computedHash": "bd95e41d66d76da9008893c9bc48c30f0a68f352cd2b00017767f5e4c129501d"
+    },
+    "zod": {
+      "source": "pproenca/dot-skills",
+      "commit": "cf93c57cac89d6fc3e4194686000411567f5caf3",
+      "sourceType": "github",
+      "skillPath": "skills/.curated/zod/SKILL.md",
+      "computedHash": "0dda8a9c32affa99f4981924798d7399f0f5bd3ecc37910cfc4b05f260f442cd"
+    },
+    "zustand-patterns": {
+      "source": "yonatangross/orchestkit",
+      "commit": "e7832d802100780923c6d806561dccb53565a8bb",
+      "sourceType": "github",
+      "skillPath": "plugins/ork-extras/skills/zustand-patterns/SKILL.md",
+      "computedHash": "616aac6884790578ec91ef7dca17859832949411883474ef32dcbd010d4aa7de"
+    }
+  }
+}

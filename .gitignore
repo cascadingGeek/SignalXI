@@ -1,0 +1,31 @@
+# OS and editors
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Secrets: only *.example env files are committed
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Node
+node_modules/
+
+# Local logs
+*.log
+
+# Markdown stays local, except shared project context
+*.md
+!AGENTS.md
+!docs/**/*.md
+!.claude/**/*.md
+!.agents/**/*.md

@@ -1,0 +1,188 @@
+[project]
+name = "signalxi-backend"
+version = "0.1.0"
+description = "SignalXI API and scheduler worker (FastAPI, layered per backend spec 0001)."
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "asyncpg>=0.32.0",
+    "fastapi>=0.165.0",
+    "httpx>=0.28.1",
+    "numpy>=2.5.5",
+    "pydantic-settings>=2.16.3",
+    "redis>=8.2.0",
+    "scipy>=1.18.1",
+    "sqlalchemy[asyncio]>=2.1.9",
+    "structlog>=26.1.0",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[dependency-groups]
+dev = [
+    "fakeredis>=2.41.0",
+    "honcho>=2.0.0",
+    "import-linter>=2.17",
+    "mypy>=2.4.1",
+    "pytest>=9.2.0",
+    "pytest-asyncio>=1.5.0",
+    "pytest-socket>=0.8.1",
+    "ruff>=0.17.6",
+]
+
+[tool.uv]
+package = false
+
+# ---------------------------------------------------------------- ruff
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+extend-exclude = [".venv"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "UP", "SIM", "ASYNC", "RUF", "BLE", "N", "PT", "TID", "PLC0415"]
+# Spec 0001 names domain errors without an Error suffix (RateLimited, DependencyUnavailable).
+ignore = ["N818"]
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"os.getenv".msg = "Read env only in app/core/config.py"
+"os.environ".msg = "Read env only in app/core/config.py"
+
+[tool.ruff.lint.per-file-ignores]
+"app/core/config.py" = ["TID251"]
+"scripts/*" = ["TID251"]
+"tests/*" = ["TID251"]
+
+# ---------------------------------------------------------------- mypy
+[tool.mypy]
+python_version = "3.13"
+strict = true
+plugins = ["pydantic.mypy"]
+files = ["app", "tests", "scripts"]
+
+[[tool.mypy.overrides]]
+module = ["fakeredis.*", "grimp.*"]
+ignore_missing_imports = true
+
+# ---------------------------------------------------------------- pytest
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+# Unix sockets stay open: asyncio's event loop needs a socketpair internally.
+addopts = "--disable-socket --allow-unix-socket -p no:cacheprovider"
+markers = ["integration: needs local Supabase and Redis (opts in to sockets)"]
+
+# ---------------------------------------------------------------- import-linter (backend spec 0001)
+[tool.importlinter]
+root_package = "app"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Layers only import downward"
+type = "layers"
+layers = [
+    "app.main | app.core.scheduler",
+    "app.http",
+    "app.routes | app.workers",
+    "app.core.dependency",
+    "app.core.container",
+    "app.controllers",
+    "app.services",
+    "app.workflow",
+    "app.repositories | app.tools",
+    "app.models",
+    "app.core.database | app.core.redis | app.core.telemetry | app.core.security",
+    "app.core.config | app.core.errors",
+    "app.knowledge",
+    "app.schemas",
+    "app.utils",
+]
+
+[[tool.importlinter.contracts]]
+name = "Controllers are independent (each may use the presenter)"
+type = "independence"
+modules = ["app.controllers.*"]
+ignore_imports = ["app.controllers.* -> app.controllers.presenter"]
+unmatched_ignore_imports_alerting = "none"
+
+[[tool.importlinter.contracts]]
+name = "Routes are independent"
+type = "independence"
+modules = ["app.routes.*"]
+
+[[tool.importlinter.contracts]]
+name = "Tools are independent"
+type = "independence"
+modules = ["app.tools.*"]
+
+[[tool.importlinter.contracts]]
+name = "Workers are independent"
+type = "independence"
+modules = ["app.workers.*"]
+
+[[tool.importlinter.contracts]]
+name = "No web framework below the dependency glue"
+type = "forbidden"
+source_modules = [
+    "app.workers",
+    "app.core.container",
+    "app.services",
+    "app.workflow",
+    "app.repositories",
+    "app.tools",
+    "app.models",
+    "app.core.database",
+    "app.core.redis",
+    "app.core.telemetry",
+    "app.core.security",
+    "app.core.config",
+    "app.core.errors",
+    "app.knowledge",
+    "app.schemas",
+    "app.utils",
+]
+forbidden_modules = ["fastapi", "starlette"]
+
+[[tool.importlinter.contracts]]
+name = "Workers never touch the HTTP stack"
+type = "forbidden"
+source_modules = ["app.workers"]
+forbidden_modules = ["app.core.dependency", "app.controllers", "app.routes"]
+
+[[tool.importlinter.contracts]]
+name = "Workflow never persists"
+type = "forbidden"
+source_modules = ["app.workflow"]
+forbidden_modules = [
+    "app.services",
+    "app.repositories",
+    "app.models",
+    "app.core.database",
+    "app.core.redis",
+]
+
+[[tool.importlinter.contracts]]
+name = "Routes hold no infrastructure (direct imports only)"
+type = "forbidden"
+source_modules = ["app.routes"]
+allow_indirect_imports = true
+# langgraph joins this list when the LLM feature installs it.
+forbidden_modules = [
+    "redis",
+    "sqlalchemy",
+    "asyncpg",
+    "httpx",
+    "app.services",
+    "app.repositories",
+    "app.models",
+    "app.tools",
+    "app.workflow",
+    "app.core.container",
+    "app.core.database",
+    "app.core.redis",
+    "app.core.security",
+    "app.core.telemetry",
+]
