@@ -1,0 +1,19 @@
+# Local dev dependencies only (spec _root 0001): Redis compatible Valkey to match
+# Render Key Value. Postgres and Auth come from `supabase start`; the API, worker,
+# and Next.js run natively for fast reloads.
+services:
+  redis:
+    image: valkey/valkey:8
+    command: ["valkey-server", "--maxmemory-policy", "volatile-lru", "--appendonly", "yes"]
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  redis-data:
