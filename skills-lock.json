@@ -85,6 +85,13 @@
       "skillPath": "skills/pydantic/SKILL.md",
       "computedHash": "434540e43897b5ad8db567d7a77bd71ec0522e10134aaa23941050ca7ff7e1e7"
     },
+    "python-backend": {
+      "source": "yonatangross/orchestkit",
+      "commit": "e7832d802100780923c6d806561dccb53565a8bb",
+      "sourceType": "github",
+      "skillPath": "plugins/ork/skills/python-backend/SKILL.md",
+      "computedHash": "a68ce3dd9d22682642c835196b7ba885b9d3c4411a151cf0b36ca8277f347bf4"
+    },
     "redis-connections": {
       "source": "redis/agent-skills",
       "commit": "74708dab4b3f81a9845803c3f642a4f7d443af69",
@@ -161,6 +168,13 @@
       "sourceType": "github",
       "skillPath": "skills/.curated/zod/SKILL.md",
       "computedHash": "0dda8a9c32affa99f4981924798d7399f0f5bd3ecc37910cfc4b05f260f442cd"
+    },
+    "zustand-patterns": {
+      "source": "yonatangross/orchestkit",
+      "commit": "e7832d802100780923c6d806561dccb53565a8bb",
+      "sourceType": "github",
+      "skillPath": "plugins/ork-extras/skills/zustand-patterns/SKILL.md",
+      "computedHash": "616aac6884790578ec91ef7dca17859832949411883474ef32dcbd010d4aa7de"
     }
   }
 }

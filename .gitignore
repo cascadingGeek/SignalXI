@@ -23,5 +23,9 @@ node_modules/
 # Local logs
 *.log
 
-# markdown files
+# Markdown stays local, except shared project context
 *.md
+!AGENTS.md
+!docs/**/*.md
+!.claude/**/*.md
+!.agents/**/*.md
