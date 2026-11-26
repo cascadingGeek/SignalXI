@@ -1,0 +1,13 @@
+{
+  "tool": "vitest",
+  "gate": null,
+  "additionalTools": ["@testing-library/react", "@testing-library/jest-dom"],
+  "e2eTool": "playwright",
+  "testDir": "frontend/tests/<kind>/ mirroring src (unit, e2e, architecture)",
+  "filePattern": "*.test.ts / *.test.tsx; e2e *.spec.ts",
+  "packageManager": "pnpm",
+  "packages": {
+    "frontend": { "tool": "vitest", "e2eTool": "playwright", "runCommand": "pnpm test" },
+    "backend": { "tool": "pytest", "testDir": "backend/tests/<kind>/", "filePattern": "test_*.py", "packageManager": "uv", "runCommand": "uv run pytest tests/unit" }
+  }
+}

@@ -14,7 +14,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 1 | Stack & architecture | Foundation | done |
 | 2 | Coding standards & tooling | Foundation | in-progress |
 | 3 | Data model | Foundation | planned |
-| 4 | Design system & UI foundation | Foundation | planned |
+| 4 | Design system & UI foundation | Foundation | in-progress |
 | 5 | Prediction pipeline orchestration | Slice 1 | planned |
 | 6 | Football data ingestion | Slice 1 | planned |
 | 7 | Statistical engine | Slice 1 | planned |
@@ -31,11 +31,14 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 18 | Device session cap & rate limits | Slice 4 | planned |
 | 19 | Pricing & checkout | Slice 5 | planned |
 | 20 | Payment webhooks & subscriptions | Slice 5 | planned |
-| 21 | PWA install & offline | Slice 6 | planned |
-| 22 | Legal, age notice & consent | Slice 6 | planned |
-| 23 | SEO for public pages | Slice 6 | planned |
-| 24 | Funnel analytics & error monitoring | Slice 6 | planned |
-| 25 | Pipeline health alerts | Slice 6 | planned |
+| 26 | Slip audit pipeline | Slice 6 | planned |
+| 27 | Slip audit page | Slice 6 | planned |
+| 28 | Guest sample audit | Slice 6 | planned |
+| 21 | PWA install & offline | Slice 7 | planned |
+| 22 | Legal, age notice & consent | Slice 7 | planned |
+| 23 | SEO for public pages | Slice 7 | planned |
+| 24 | Funnel analytics & error monitoring | Slice 7 | planned |
+| 25 | Pipeline health alerts | Slice 7 | planned |
 
 ## Foundations
 
@@ -55,14 +58,25 @@ Conventions and tooling choices are captured in `AGENTS.md`; install them once t
 - [ ] Check it runs clean: `/test`
 
 ### 3. Data model · needs a decision
-Fixtures, reports, picks, users, subscriptions (PRD §9) as SQL migrations with RLS, mirrored by SQLAlchemy models.
-**Done when:** every later slice (pipeline writes, settlement, paywall, billing) fits without a breaking migration, and pipeline writes are idempotent per fixture and slate date.
+Fixtures, reports, picks, users, subscriptions and slip audits (PRD §9) as SQL migrations with RLS, mirrored by SQLAlchemy models.
+**Done when:** every later slice (pipeline writes, settlement, paywall, billing, slip audits) fits without a breaking migration, and pipeline writes are idempotent per fixture and slate date.
 - [ ] Design it (spec): `/architect data model`
 
-### 4. Design system & UI foundation · needs a decision
+### 4. Design system & UI foundation · in-progress
 Visual language, classification badges, cards, tabs and drawer primitives, tuned for mid range Android on slow networks.
 **Done when:** `design.md` covers type, color, spacing and the four classification badges; base components meet WCAG AA and fit the 2MB budget.
-- [ ] Design it (spec): `/architect design system & UI foundation`
+- [x] Design it (spec): `/architect design system & UI foundation`
+- [ ] Build it: `/develop design system & UI foundation`
+  - [x] Thin thread: fonts, core tokens, Midnight first theme toggle, one badge on `/dev/ui`, theme and axe e2e (AC-1, AC-2, AC-3, AC-11, AC-12)
+  - [x] Full tokens and themed shadcn primitives, skeleton pulse, colour literal and contrast tests (AC-4, AC-5, AC-6, AC-7, AC-12)
+  - [x] Error and empty states, error copy map, Next.js error pages (AC-8, AC-9)
+  - [x] AdSlot, env flags, app shell (header, bottom nav, footer) (AC-6, AC-10)
+  - [ ] Complete `/dev/ui`, budget e2e, `frontend/design.md` (AC-11, AC-12, AC-13, AC-14) · built; open: PNG exports of the canvas under `docs/design/`
+- [x] Verify it: `/check verify design system & UI foundation`
+- [x] Test it: `/test design system & UI foundation`
+- [x] Review it (fresh model): `/check review design system & UI foundation`
+- [x] Document it: `/document design system & UI foundation`
+Spec [frontend 0001](../specs/frontend/0001-design-system-ui-foundation/index.md) · design canvas https://claude.ai/artifact/1t4J5GyAVk5ogSjz5iuEug · code in `frontend/src/app/globals.css`, `frontend/src/components/`, `frontend/src/features/predictions/`, `frontend/design.md`
 
 ## Slice 1: Real fixtures to a public slate
 
@@ -140,7 +154,7 @@ Guests and free members get 2 to 3 full free cards (at least one HIGH_RISK_AVOID
 - [ ] Design it (spec): `/architect server side paywall`
 
 ### 18. Device session cap & rate limits · needs a decision
-At most 2 active devices per premium account, and sliding window rate limits on auth, prediction and webhook routes.
+At most 2 active devices per premium account, and sliding window rate limits on auth, prediction, slip audit and webhook routes.
 **Done when:** a third sign in ends the oldest session, and each limited route rejects bursts with a clear error.
 - [ ] Design it (spec): `/architect device session cap & rate limits`
 
@@ -156,7 +170,26 @@ Verify the payment webhook, activate or extend the subscription once, and unlock
 **Done when:** forged or replayed webhooks are rejected, a valid payment activates the plan exactly once, expiry is enforced, and the full slate unlocks immediately.
 - [ ] Design it (spec): `/architect payment webhooks & subscriptions`
 
-## Slice 6: Launch readiness
+## Slice 6: Slip audit
+
+Premium "third eye" review of a user's own bet slip before they stake (PRD §5.3, §8.2).
+
+### 26. Slip audit pipeline · needs a decision
+On demand audit of 1 to 3 slip screenshots or pasted text: extract the legs, match them to known fixtures, run the slip math, and return grounded verdicts and a trimmed slip, within each plan's daily quota.
+**Done when:** a premium user gets a verdict for every leg (Keep, Keep (Value), Cautious, Drop, Drop (No Value)) and a trimmed slip with recalculated odds; unknown fixtures are marked as unverified instead of invented; Monthly Pro gets 3 audits a day and Weekend Pass 1, resetting at midnight WAT, and parallel requests can't beat the count; more than 3 images or 15 legs is rejected; raw screenshots are never stored.
+- [ ] Design it (spec): `/architect slip audit pipeline`
+
+### 27. Slip audit page · needs a decision
+The premium audit screen: upload or paste a slip, images shrunk on the phone before upload, and the result styled like a real bet slip, with a ticket header, leg rows with verdict badges, a trimmed slip card, and a history of past audits.
+**Done when:** a premium user can audit a slip from a mid range Android on 3G, sees the remaining daily quota, can spot which legs to cut at a glance, and can reopen past audits; free users and guests never reach the audit endpoint.
+- [ ] Design it (spec): `/architect slip audit page`
+
+### 28. Guest sample audit · needs a decision
+A locked, interactive sample audited slip shown to guests and free members, to drive upgrades.
+**Done when:** guests and free members can explore a sample audit that looks like the real thing, with a clear upgrade path, and it never calls the audit pipeline.
+- [ ] Design it (spec): `/architect guest sample audit`
+
+## Slice 7: Launch readiness
 
 ### 21. PWA install & offline · needs a decision
 Manifest and service worker so the app installs, and the shell plus the last slate load offline.
@@ -187,6 +220,7 @@ Know when the daily job, refresh or settlement fails or produces an empty slate.
 Out of scope for the current build pass, kept so the plan stays honest.
 - **Weekly slate view**: a 7 day date filter, which means generating further ahead · needs a decision
 - **Push notifications**: optional alerts 1 hour before major kickoff windows · needs a decision
+- **Ad network**: pick the network, add cookie consent and an 18+ ad policy, then turn `NEXT_PUBLIC_ADS_ENABLED` on; the slots already exist · needs a decision · from spec frontend 0001
 - **PRD §11 backlog**: Corners and Bookings sections, risk and form map, affiliate links, ads, native apps, social features
 
 ## Legend
