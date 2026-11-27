@@ -41,4 +41,15 @@ describe("EmptyState", () => {
 
     expect(container.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
   });
+
+  it("swaps the icon tile for a decorative illustration when one is given", () => {
+    const { container } = render(
+      <EmptyState {...copy} illustration="/illustrations/no-results.svg" />,
+    );
+
+    const img = container.querySelector("img");
+    expect(img).toHaveAttribute("alt", "");
+    expect(img?.getAttribute("src")).toContain("no-results.svg");
+    expect(container.querySelector("svg")).toBeNull();
+  });
 });

@@ -1,10 +1,20 @@
 "use client";
 
-import { ChartColumn, CircleUser, LayoutList, ReceiptText } from "lucide-react";
+import {
+  BellRing,
+  ChartColumn,
+  CircleUser,
+  LayoutList,
+  LogIn,
+  Radio,
+  ReceiptText,
+} from "lucide-react";
 import { useState } from "react";
 
 import { AdSlot, type AdSize } from "@/components/ad-slot";
 import { AppHeader } from "@/components/app-header";
+import { BrandLoader } from "@/components/brand-loader";
+import { BrandMark } from "@/components/brand-mark";
 import { BottomNav } from "@/components/bottom-nav";
 import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
@@ -40,12 +50,28 @@ const AD_SIZES: AdSize[] = [
   "300x600",
 ];
 const ERROR_KINDS = Object.keys(errorCopy) as DisplayErrorKind[];
-const NAV = [
+const SHARED_NAV = [
   { href: "#", label: "Slate", icon: LayoutList },
-  { href: "#slip-audit", label: "Slip audit", icon: ReceiptText },
+  { href: "#live", label: "Live", icon: Radio },
+  { href: "#audit", label: "Audit", icon: ReceiptText },
   { href: "#ledger", label: "Ledger", icon: ChartColumn },
-  { href: "#account", label: "Account", icon: CircleUser },
 ];
+const NAV_SETS = {
+  member: [...SHARED_NAV, { href: "#account", label: "Account", icon: CircleUser }],
+  guest: [...SHARED_NAV, { href: "#sign-in", label: "Sign in", icon: LogIn }],
+};
+const HEADER_NAV = [
+  { href: "#", label: "Slate" },
+  { href: "#live", label: "Live" },
+  { href: "#audit", label: "Slip audit" },
+  { href: "#ledger", label: "Ledger" },
+  { href: "#pricing", label: "Pricing" },
+];
+const MATCH_PICKS = [
+  { section: "Main", market: "Draw No Bet · Arsenal", classification: "STRONG" },
+  { section: "Goals", market: "Over 1.5 Goals", classification: "STRONG" },
+  { section: "Half", market: "1st Half Over 0.5 Goals", classification: "MODERATE" },
+] as const;
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -107,6 +133,15 @@ function Panel({ theme }: { theme: "dark" | "light" }) {
         </p>
       </Section>
 
+      <Section title="Brand">
+        <div className="flex items-center gap-3">
+          <BrandMark className="size-12" />
+          <span className="font-display text-3xl font-extrabold tracking-tight">
+            Signal<span className="text-primary">XI</span>
+          </span>
+        </div>
+      </Section>
+
       <Section title="Classification badges">
         <div className="flex flex-wrap gap-2">
           {CLASSES.map((c) => (
@@ -165,25 +200,69 @@ function Panel({ theme }: { theme: "dark" | "light" }) {
         </Tabs>
       </Section>
 
-      <Section title="Card and drawer">
+      <Section title="Card and drawers">
         <SamplePick />
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="outline">Open fixture drawer</Button>
-          </SheetTrigger>
-          <SheetContent side="bottom">
-            <SheetHeader>
-              <SheetTitle>Arsenal vs Bayern</SheetTitle>
-              <SheetDescription>Fixture analysis opens in this drawer.</SheetDescription>
-            </SheetHeader>
-            <div className="px-4 pb-6">
-              <SamplePick />
-            </div>
-          </SheetContent>
-        </Sheet>
+        <div className="flex flex-wrap gap-2">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline">Open match drawer</Button>
+            </SheetTrigger>
+            <SheetContent side="responsive" className={theme}>
+              <SheetHeader className="pr-14">
+                <span className="text-xs font-semibold text-muted-foreground">
+                  Premier League · Today 20:00 WAT
+                </span>
+                <SheetTitle>Arsenal vs Brentford</SheetTitle>
+                <SheetDescription>Primary pick and safer picks by market section.</SheetDescription>
+              </SheetHeader>
+              <div className="flex flex-col gap-3 px-4 pb-6">
+                <SamplePick />
+                {MATCH_PICKS.map((p) => (
+                  <div
+                    key={p.market}
+                    className="flex flex-col gap-2 rounded-2xl border border-border bg-background p-4"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-bold tracking-widest text-muted-foreground uppercase">
+                        {p.section}
+                      </span>
+                      <ClassificationBadge classification={p.classification} />
+                    </div>
+                    <span className="font-semibold">{p.market}</span>
+                  </div>
+                ))}
+              </div>
+            </SheetContent>
+          </Sheet>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline">Open kickoff alert prompt</Button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className={cn(theme, "mx-auto lg:max-w-md")}>
+              <SheetHeader className="flex-row items-center gap-3.5 px-5 pr-14">
+                <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground">
+                  <BellRing aria-hidden className="size-7" />
+                </span>
+                <div className="flex flex-col gap-1">
+                  <SheetTitle>Get a nudge before kickoff?</SheetTitle>
+                  <SheetDescription>One alert an hour before your saved matches.</SheetDescription>
+                </div>
+              </SheetHeader>
+              <div className="flex flex-col gap-2 px-5 pb-6">
+                <Button size="lg">Turn on alerts</Button>
+                <Button size="lg" variant="ghost">
+                  Not now
+                </Button>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </Section>
 
       <Section title="Loading">
+        <div className="flex justify-center rounded-2xl border border-border bg-card py-8">
+          <BrandLoader label="Loading today's slate" />
+        </div>
         <div
           role="status"
           aria-busy="true"
@@ -227,6 +306,7 @@ function Panel({ theme }: { theme: "dark" | "light" }) {
       <Section title="Empty">
         <div className="rounded-2xl border border-border bg-card">
           <EmptyState
+            illustration="/illustrations/no-results.svg"
             title="No picks for this filter yet"
             body="The slate publishes by 09:00 WAT. Try another competition meanwhile."
             action={{ label: "Clear filters", onClick: () => undefined }}
@@ -250,22 +330,41 @@ function Panel({ theme }: { theme: "dark" | "light" }) {
 
 /** Dev only catalogue of every foundation part, in both themes and every state. */
 export function UiShowcase() {
+  const [viewer, setViewer] = useState<keyof typeof NAV_SETS>("member");
   return (
     <>
       <AppHeader
-        nav={[
-          { href: "#", label: "Slate" },
-          { href: "#ledger", label: "Ledger" },
-          { href: "#pricing", label: "Pricing" },
-        ]}
-        actions={<Button>Sign in</Button>}
+        nav={HEADER_NAV}
+        activeHref="#"
+        actions={
+          viewer === "guest" ? (
+            <Button>Sign in</Button>
+          ) : (
+            <Button variant="outline" size="icon" aria-label="Account">
+              <CircleUser aria-hidden />
+            </Button>
+          )
+        }
       />
       <main className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-6 xl:grid-cols-2">
         <h1 className="sr-only">UI foundation</h1>
+        <div className="flex flex-wrap items-center gap-2 xl:col-span-2">
+          <span className="text-sm text-muted-foreground">Navigation as</span>
+          {(["member", "guest"] as const).map((v) => (
+            <Button
+              key={v}
+              variant={viewer === v ? "secondary" : "ghost"}
+              aria-pressed={viewer === v}
+              onClick={() => setViewer(v)}
+            >
+              {v === "member" ? "Member" : "Guest"}
+            </Button>
+          ))}
+        </div>
         <Panel theme="dark" />
         <Panel theme="light" />
       </main>
-      <BottomNav items={NAV} activeHref="#" />
+      <BottomNav items={NAV_SETS[viewer]} activeHref="#" />
     </>
   );
 }

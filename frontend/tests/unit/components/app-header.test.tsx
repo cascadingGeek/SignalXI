@@ -41,4 +41,20 @@ describe("AppHeader", () => {
 
     expect(screen.getByRole("button", { name: "Sign in" })).toBeInTheDocument();
   });
+
+  it("marks the active nav link as the current page and keeps the logo decorative", () => {
+    const { container } = render(
+      <AppHeader
+        nav={[
+          { href: "/", label: "Slate" },
+          { href: "/ledger", label: "Ledger" },
+        ]}
+        activeHref="/ledger"
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Ledger" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("link", { name: "Slate" })).not.toHaveAttribute("aria-current");
+    expect(container.querySelector("a[href='/'] svg")).toHaveAttribute("aria-hidden", "true");
+  });
 });

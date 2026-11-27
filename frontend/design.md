@@ -1,6 +1,6 @@
 # SignalXI design system
 
-source: spec [frontend 0001](../docs/specs/frontend/0001-design-system-ui-foundation/index.md) and the design canvas "SignalXI Web & Mobile" (https://claude.ai/artifact/1t4J5GyAVk5ogSjz5iuEug, private until shared)
+source: spec [frontend 0001](../docs/specs/frontend/0001-design-system-ui-foundation/index.md) and the design canvas "SignalXI Brand & Product v3" (https://claude.ai/artifact/Jtn9yosDQK2WZ1ztYMSpWN, updated 2026-11-27, private until shared)
 tokens: `src/app/globals.css` is the source of truth for every value below. Change values there, not here.
 preview: `/dev/ui` (served when `NEXT_PUBLIC_APP_ENV` is `local` or `preview`) shows every part in both themes and every state.
 
@@ -14,7 +14,7 @@ A calm, focused night time tool for people about to stake money. Dark first (Mid
 - Every screen ships its loading, error and empty states. Skeletons copy the real layout's shape; spinners live only inside buttons.
 - Errors say what happened, whose side it is on, one next step, and a reference code when the server sent one (`ErrorState`, copy in `src/lib/error-copy.ts`).
 - Every page shows the 18+ disclosure (`SiteFooter` does this in the root layout).
-- Mobile first. Below 1024px a single column with `BottomNav`. At 1024px and up, header navigation and the three column layout from the canvas (240px filters, fluid centre, 300px ad rail from 1280px).
+- Mobile first. Below 1024px a single column with `BottomNav`: five tabs, the same order for everyone, Slate · Live · Audit · Ledger, then Account for members or Sign in for guests. At 1024px and up, header navigation and the three column layout from the canvas (240px filters, fluid centre, 300px ad rail from 1280px).
 - Touch targets are at least 44 by 44 px. Inline text links inside a sentence are the only exception.
 - No colour literals in `src/components/` or `src/features/`; a test enforces it. Use the token utilities.
 
@@ -48,16 +48,28 @@ Both palettes live in `globals.css`: Light under `:root, .light`, Midnight under
 
 Contrast rules (a unit test computes them from `globals.css`): text 4.5:1 or more on `background`, `card` and `raised`; badge text 4.5:1 on its tint; control outlines 3:1. Badges and muted text never sit on `accent`, an ad box or the paper ticket.
 
+## Brand
+
+`BrandMark` (`src/components/brand-mark.tsx`) is the logo: three rising bars on one slanted cut, and the ball where the line lands. It draws in `primary` and `foreground`, so it follows the theme. The header pairs it with the wordmark "Signal**XI**". Never recolour the bars in risk colours, and never tilt the mark.
+
+Static files exported from the canvas live in `public/brand/` (`mark-midnight`, `mark-light`, `mark-white`, `mark-ink` for the app icon) for places that need a file: manifest icons, social cards, email.
+
+`BrandLoader` (`src/components/brand-loader.tsx`) is the full screen or section loader: the bars rise in turn and the ball bounces off the top bar. It is pure CSS (`animate-signal-bar`, `animate-signal-ball` in `globals.css`), stops under reduced motion, and announces its label as a status. Skeletons stay the default for lists; use the loader for a first app load or a whole screen with no layout yet.
+
+## Illustrations
+
+The "Floodlight" set from the canvas, as files in `public/illustrations/`: `hero-striker`, `hero-reader` (landing), `inbox` (check your email), `slate-not-published`, `no-signal` (offline), `connection-lost` (error), `no-matches`, `sample-audit`, `no-results`. Pass one to `EmptyState` with `illustration="/illustrations/<name>.svg"`; it is decorative (`alt=""`) because the title says the same thing.
+
 ## Classification badges
 
-`ClassificationBadge` in `src/features/predictions/`. The text carries the meaning; the icon is decorative.
+`ClassificationBadge` in `src/features/predictions/`. The text carries the meaning; the signal bars are decorative and repeat it by count.
 
-| Class | Label | Tokens | Icon |
+| Class | Label | Tokens | Signal bars |
 |---|---|---|---|
-| `STRONG` | Strong Candidate | `strong` on `strong-bg` | CircleCheck |
-| `MODERATE` | Moderate Candidate | `moderate` on `moderate-bg` | CircleMinus |
-| `HIGH_RISK_AVOID` | High Risk (Avoid) | `avoid` on `avoid-bg` | TriangleAlert |
-| `INSUFFICIENT_DATA` | Insufficient Data | `insufficient` on `insufficient-bg` | CircleHelp |
+| `STRONG` | Strong Candidate | `strong` on `strong-bg` | 3 lit |
+| `MODERATE` | Moderate Candidate | `moderate` on `moderate-bg` | 2 lit |
+| `HIGH_RISK_AVOID` | High Risk (Avoid) | `avoid` on `avoid-bg` | 1 lit, always with a Why Avoid note |
+| `INSUFFICIENT_DATA` | Insufficient Data | `insufficient` on `insufficient-bg` | none, dashed outlines |
 
 Size `sm` on dense slate rows, `md` in the fixture drawer.
 
@@ -75,7 +87,7 @@ The same in both themes, because they sit on the paper ticket (`paper` #F3EEE2, 
 
 ## Spacing and shape
 
-Tailwind's 4px scale. Controls `rounded-xl` (about 17px from `--radius` 12px), cards `rounded-2xl`, badges and chips `rounded-full`, the mobile drawer `rounded-t-3xl`. Depth comes from surface steps (`background` to `card` to `raised`), not shadows.
+Tailwind's 4px scale. Controls `rounded-xl` (about 17px from `--radius` 12px), cards `rounded-2xl`, badges and chips `rounded-full`, the bottom sheet `rounded-t-[28px]` with a drag handle. Depth comes from surface steps (`background` to `card` to `raised`), not shadows.
 
 ## States
 
@@ -96,3 +108,11 @@ Every data screen handles five: **ready**; **loading** (skeletons in a `role="st
 | 320 × 100 | Mobile landing page | all widths |
 
 Never inside a pick card, the fixture drawer, sign in, checkout, a slip audit, or an error or empty state.
+
+## Drawers
+
+`Sheet` from `src/components/ui/sheet.tsx`, styled like the canvas bottom sheet (card surface, 28px top corners, handle, safe area padding, dark scrim).
+- `side="responsive"`: a bottom sheet below 1024px and a right side panel (max 448px) from 1024px up. Use it for match detail opened from the slate and anything the user should read without losing their place in a list.
+- `side="bottom"`: short prompts and choices (install the app, kickoff alerts, device limit, quota used). One clear action plus "Not now".
+- Full pages stay for things people share or reach from a link: the High Risk (Avoid) page, the ledger, account, policies.
+

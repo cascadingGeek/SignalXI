@@ -78,6 +78,41 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 
   --animate-skeleton-pulse: pulse 1.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-signal-bar: signal-bar 1.2s ease-in-out infinite;
+  --animate-signal-ball: signal-ball 1.2s infinite;
+
+  @keyframes signal-bar {
+    0%,
+    100% {
+      transform: scaleY(0.35);
+      opacity: 0.55;
+    }
+    35%,
+    65% {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes signal-ball {
+    0%,
+    100% {
+      transform: translateY(-18px);
+      animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+    }
+    46% {
+      transform: translateY(0) scale(1);
+      animation-timing-function: linear;
+    }
+    52% {
+      transform: translateY(1.5px) scale(1.22, 0.78);
+      animation-timing-function: cubic-bezier(0, 0.55, 0.45, 1);
+    }
+    58% {
+      transform: translateY(0) scale(0.94, 1.06);
+      animation-timing-function: cubic-bezier(0, 0.55, 0.45, 1);
+    }
+  }
 }
 
 :root,
