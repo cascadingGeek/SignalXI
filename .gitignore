@@ -26,6 +26,7 @@ node_modules/
 # Markdown stays local, except shared project context
 *.md
 !AGENTS.md
+!README.md
 !frontend/design.md
 !docs/**/*.md
 !.claude/**/*.md
