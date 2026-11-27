@@ -6,7 +6,11 @@ export default defineConfig({
   plugins: [tsconfigPaths(), react()],
   test: {
     environment: "jsdom",
-    include: ["tests/unit/**/*.test.{ts,tsx}", "tests/integration/**/*.test.{ts,tsx}"],
+    include: [
+      "tests/unit/**/*.test.{ts,tsx}",
+      "tests/integration/**/*.test.{ts,tsx}",
+      "tests/architecture/**/*.test.{ts,tsx}",
+    ],
     setupFiles: ["./tests/unit/setup.ts"],
     env: { NEXT_PUBLIC_SITE_URL: "http://localhost:3000" },
   },

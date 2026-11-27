@@ -18,7 +18,11 @@ Next.js App Router PWA (TypeScript, Tailwind, shadcn/ui), mobile first for mid r
 | `public/` | `manifest.json`, service worker, icons |
 | `src/lib/api-error.ts` | `ApiError`, the one shape every API failure surfaces as |
 | `src/types/api.gen.ts` | Generated from `backend/openapi.json` by `pnpm gen:api`; never edit by hand |
-| `tests/unit/`, `tests/e2e/` | Vitest (`pnpm test`) and Playwright (`pnpm test:e2e`, config in `playwright.config.ts`) |
+| `tests/unit/`, `tests/e2e/`, `tests/architecture/` | Vitest (`pnpm test`, includes the architecture guards) and Playwright (`pnpm test:e2e`, config in `playwright.config.ts`) |
+| `design.md` | Design system: type, both palettes, contrast rules, badges, ad inventory, states |
+| `src/app/globals.css` | Colour tokens for Light (`:root`) and Midnight (`.dark`), mapped onto shadcn variables |
+| `src/lib/error-copy.ts` | The one copy map for every API error kind plus `offline` |
+| `src/app/dev/ui/` | Preview of every shared part in both themes; served only when `NEXT_PUBLIC_APP_ENV` is not production |
 
 ## Conventions
 
@@ -29,11 +33,16 @@ Next.js App Router PWA (TypeScript, Tailwind, shadcn/ui), mobile first for mid r
 - Third party SDKs (Supabase, Paystack, Sentry) are wrapped in `src/services/`.
 - Named exports only, except files Next.js requires to default export.
 - Times shown in WAT (`formatWatTime`), money in Naira (`formatNaira`).
+- Design system: build all UI to `design.md` (art direction and the maximalist product bar); token values live in CSS.
+- Colours come only from tokens: `tests/architecture/colour-literals.test.ts` bans colour literals in `src/app`, `src/components` and `src/features` (except `globals.css`, `global-error.tsx`, `layout.tsx`).
+- Theme is next-themes on the `<html>` class, Midnight (`dark`) by default with the OS ignored, stored under `sx-theme`.
+- `AdSlot` renders only when `NEXT_PUBLIC_ADS_ENABLED` is true and never for premium; pass `placement` when a page has several slots.
 
 ## Gotchas
 
 - `next.config.ts` imports `src/lib/env.ts`, so a bad env value fails `next build`. Vercel Preview leaves `NEXT_PUBLIC_API_BASE_URL` unset; the API client then throws a 503 `ApiError` instead of calling out.
 - The paywall is server side: never fetch locked data and hide it in the UI. Locked items arrive as placeholders.
+- The size budget e2e (`budget.spec.ts`) runs only with `E2E_BUDGET=1` against `pnpm build && pnpm start`, not `pnpm dev`.
 - Offline: the service worker caches the app shell and the last fetched slate; keep the initial load under 2MB, no heavy chart libraries.
 
 ## Agent skills

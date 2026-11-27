@@ -23,4 +23,27 @@ describe("parsePublicEnv", () => {
       }),
     ).toThrow(/NEXT_PUBLIC_API_BASE_URL/);
   });
+
+  it("defaults the app env to production and ads to off when blank", () => {
+    const env = parsePublicEnv({
+      NEXT_PUBLIC_SITE_URL: "http://x.test",
+      NEXT_PUBLIC_APP_ENV: "",
+      NEXT_PUBLIC_ADS_ENABLED: "",
+    });
+
+    expect(env.NEXT_PUBLIC_APP_ENV).toBe("production");
+    expect(env.NEXT_PUBLIC_ADS_ENABLED).toBe(false);
+  });
+
+  it("reads the ads flag as a boolean and rejects unknown values", () => {
+    const env = parsePublicEnv({
+      NEXT_PUBLIC_SITE_URL: "http://x.test",
+      NEXT_PUBLIC_ADS_ENABLED: "true",
+    });
+
+    expect(env.NEXT_PUBLIC_ADS_ENABLED).toBe(true);
+    expect(() =>
+      parsePublicEnv({ NEXT_PUBLIC_SITE_URL: "http://x.test", NEXT_PUBLIC_APP_ENV: "staging" }),
+    ).toThrow(/NEXT_PUBLIC_APP_ENV/);
+  });
 });

@@ -1,6 +1,6 @@
 # SignalXI
 
-Mobile first PWA for Nigerian football bettors: a risk filtering prediction slate (not a tipster). Product rules live in `signalxi_product_requirements_document.md`; read its §1 "Core Mental Model" before any design decision.
+Mobile first PWA for Nigerian football bettors: a risk filtering prediction slate (not a tipster). Product rules live in `signalxi_PRD.md`; read its §1 "Core Mental Model" before any design decision.
 
 ## Stack
 

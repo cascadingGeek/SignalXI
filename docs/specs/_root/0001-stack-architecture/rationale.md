@@ -78,7 +78,7 @@ Smaller calls follow from these. Supavisor session mode, because the transaction
 ## References
 
 **Project sources**:
-- `signalxi_product_requirements_document.md` §1, §4.1, §6, §7, §8, §10
+- `signalxi_PRD.md` §1, §4.1, §6, §7, §8, §10
 - [Backend spec 0001: layering and dependency rules](../../backend/0001-backend-layering-dependency-rules/index.md)
 - Root `AGENTS.md` (tooling, strict types, conventions)
 - `docs/scope/scope.md` (Tracer Bullet, GA workflow)

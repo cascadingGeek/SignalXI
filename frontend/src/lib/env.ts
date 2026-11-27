@@ -9,6 +9,13 @@ const publicEnvSchema = z.object({
   NEXT_PUBLIC_API_BASE_URL: z.preprocess(blankAsUndefined, originUrl.optional()),
   NEXT_PUBLIC_SUPABASE_URL: z.preprocess(blankAsUndefined, originUrl.optional()),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.preprocess(blankAsUndefined, z.string().min(1).optional()),
+  NEXT_PUBLIC_ADS_ENABLED: z
+    .preprocess(blankAsUndefined, z.enum(["true", "false"]).default("false"))
+    .transform((value) => value === "true"),
+  NEXT_PUBLIC_APP_ENV: z.preprocess(
+    blankAsUndefined,
+    z.enum(["local", "preview", "production"]).default("production"),
+  ),
 });
 
 export type PublicEnv = z.infer<typeof publicEnvSchema>;
@@ -28,4 +35,6 @@ export const env: PublicEnv = parsePublicEnv({
   NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
   NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  NEXT_PUBLIC_ADS_ENABLED: process.env.NEXT_PUBLIC_ADS_ENABLED,
+  NEXT_PUBLIC_APP_ENV: process.env.NEXT_PUBLIC_APP_ENV,
 });
