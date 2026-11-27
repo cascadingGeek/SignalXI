@@ -80,3 +80,18 @@ Midnight is fixed as the default and the phone's setting is ignored. That was th
 A dev only route checked by axe (rather than Storybook, Option 3) previews parts in the real runtime, at no extra build cost. It also gives the GA tier an automated contrast and target size gate.
 
 Ads are reserved rather than wired (rather than Option 4), so every later page can place its slots now with no layout shift. The network choice then becomes its own decision, together with consent and ad policy, where those forces actually live. Ads show only to guests and free members, as the engineer chose, keeping premium ad free as part of what people pay for.
+
+### Update 2026-11-27: new canvas and app navigation
+
+The designer rebuilt the canvas (37 boards) and asked two questions. The engineer's answers:
+- **Guest bottom bar**: the member bar with Sign in in the last slot, over the designer's Home · Slate · Live · Audit · Sign in. One shape for everyone means signing in never moves a tab, and the public Ledger is the strongest conversion argument a guest can see, so hiding it from guests worked against the success metric. Runner up: the designer's guest bar.
+- **Pause account**: deferred. It has no PRD basis and touches sign in, sessions and paid plan time (whether a paused plan keeps running), so it needs its own spec after launch. Runner up: build it under feature 22.
+- **Notification switches**: hidden in v1, because push notifications are deferred and a switch that does nothing costs trust. Runner up: show them disabled.
+
+### Update 2026-11-27: logo, signal bar badges, drawers, loader
+
+Built from the v3 canvas, then recorded here at the engineer's request.
+- **Signal bar badges over distinct icons.** The canvas makes the bar count the brand's one idea (the logo is three bars), so the badge repeats it: 3, 2, 1, none. Accessibility holds because the text label still carries the meaning and the bar count differs, not only the colour. Runner up: keep the lucide icons, which differ by shape.
+- **Logo as a component, files as exports.** The mark's geometry is copied from the canvas, with token fills so it follows Light and Midnight. The raw SVG exports (logo variants, the nine Floodlight illustrations) live in `public/` for manifests, social cards and empty states. Runner up: load the exported SVG with `<img>`, which can't change colour with the theme.
+- **Responsive sheet.** A bottom sheet suits thumbs on phones; on desktop a bottom sheet over a three column layout wastes width, so the same component becomes a right panel from 1024px. Prompts (install, alerts, limits) stay bottom sheets everywhere. Runner up: full pages for match detail, as drawn on the canvas, which lose the user's place in the slate.
+- **CSS loader, no animation library.** The bounce is two keyframes, costs no bytes against the 2MB budget and honours reduced motion with one class. GSAP was suggested; it stays open as a later decision if a screen needs timeline or physics work CSS can't do.

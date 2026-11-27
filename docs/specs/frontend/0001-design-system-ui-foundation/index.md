@@ -20,11 +20,12 @@ This spec turns the "SignalXI Web & Mobile" design canvas into code that every l
 - **AC-2**: The theme toggle switches between Midnight and Light. Once mounted, its accessible name says which mode it switches to. Before mount it is labelled "Switch theme". The choice is saved on the device (key `sx-theme`), survives reloads, syncs across open tabs, and works for guests.
 - **AC-3**: Bricolage Grotesque (display), Geist (interface text) and Geist Mono (odds, times, reference codes) are served from our own origin. No runtime request goes to `fonts.googleapis.com` or `fonts.gstatic.com`. Text stays visible while fonts load (`display: swap`).
 - **AC-4**: Every colour on the canvas Foundations board exists as a CSS variable for both themes and is exposed as a Tailwind utility. Files under `src/components/` (except `src/components/ui/`) and `src/features/` contain no colour literals: no hex, `rgb(`, `hsl(`, `oklch(`, or arbitrary colour classes such as `bg-[#…]`.
-- **AC-5**: `ClassificationBadge` renders the four PRD classes with these exact labels: `STRONG` as "Strong Candidate", `MODERATE` as "Moderate Candidate", `HIGH_RISK_AVOID` as "High Risk (Avoid)", and `INSUFFICIENT_DATA` as "Insufficient Data". Each has its token colours and a leading icon hidden from screen readers, carries its meaning in text and not colour alone, and its text meets AA (4.5:1) on `card` and `background` in both themes.
+- **AC-5**: `ClassificationBadge` renders the four PRD classes with these exact labels: `STRONG` as "Strong Candidate", `MODERATE` as "Moderate Candidate", `HIGH_RISK_AVOID` as "High Risk (Avoid)", and `INSUFFICIENT_DATA` as "Insufficient Data". Each has its token colours and leading signal bars hidden from screen readers (3 lit for `STRONG`, 2 for `MODERATE`, 1 for `HIGH_RISK_AVOID`, none with dashed outlines for `INSUFFICIENT_DATA`), carries its meaning in text and not colour alone, and its text meets AA (4.5:1) on `card` and `background` in both themes.
 - **AC-6**: These shared parts exist and render correctly in both themes:
   - Button, Input, Label, Checkbox, Tabs, Sheet (drawer), Card, Skeleton
   - ThemeToggle, ErrorState, EmptyState, AdSlot, ResponsibleGamblingNote
-  - AppHeader, BottomNav (below 1024px only), SiteFooter
+  - AppHeader (with the BrandMark logo), BottomNav (below 1024px only), SiteFooter
+  - BrandMark, BrandLoader, and Sheet in its `bottom` and `responsive` sides
 - **AC-7**: Skeletons pulse once every 1.4s (`animate-skeleton-pulse`), and stop pulsing under `prefers-reduced-motion: reduce`. The page that renders a skeleton puts `aria-busy="true"` on the loading region, and `/dev/ui` shows that pattern.
 - **AC-8**: `ErrorState`, given a kind from `toErrorKind(error)`, shows a title, a one line cause, one action and, when a request id exists, a reference line.
   - The copy comes from one map covering every backend `ErrorKind` plus `offline`.
@@ -44,8 +45,10 @@ This spec turns the "SignalXI Web & Mobile" design canvas into code that every l
   - A checkbox meets the size through its wrapping label.
 
   Text and outlines meet the contrast table in *Tokens*: 4.5:1 for text, and 3:1 for form control outlines (WCAG 1.4.11).
-- **AC-13**: `frontend/design.md` documents the type scale, both colour palettes, spacing and radius, the four classification badges, the slip audit verdict colours, the ad inventory and its rules, the five screen states, and a link to the design canvas.
+- **AC-13**: `frontend/design.md` documents the type scale, both colour palettes, spacing and radius, the four classification badges, the slip audit verdict colours, the ad inventory and its rules, the five screen states, the logo and its exported files, the loader, the illustrations, the drawer rules, and a link to the design canvas.
 - **AC-14**: A cold load of `/` (the current home route, measured against `next build && next start`, in a fresh browser context with service workers blocked) transfers under 2MB in total, counted as compressed body plus headers. The `.woff2` font files together transfer under 150KB.
+- **AC-15**: `BrandLoader` shows the logo with its bars rising in turn and the ball bouncing off the top bar, as pure CSS with no animation library. Under `prefers-reduced-motion: reduce` it stands still. It announces its label as a polite `role="status"`, and the logo inside is decorative.
+- **AC-16**: `Sheet` with `side="responsive"` is a bottom sheet (handle, 28px top corners, safe area padding) below 1024px and a right side panel up to 448px wide from 1024px up. `side="bottom"` is the bottom sheet at every width. Both close on Escape and on the close button, and trap focus while open.
 
 ## Decision
 
@@ -61,10 +64,23 @@ Reasoning and options: see [rationale.md](rationale.md).
 
 ## Feature design
 
-**Design source**: the canvas "SignalXI Web & Mobile", https://claude.ai/artifact/1t4J5GyAVk5ogSjz5iuEug.
-- The Foundations board holds the tokens, the ad inventory and the state rules.
-- The Slate, SlateMobile, SignIn and Errors boards show the parts in use.
+**Design source**: the canvas "SignalXI Web & Mobile", https://claude.ai/artifact/Jtn9yosDQK2WZ1ztYMSpWN (37 boards, updated 2026-11-27; it replaces the first canvas, https://claude.ai/artifact/1t4J5GyAVk5ogSjz5iuEug).
+- The Tokens board lists every token with its Midnight and Light value, plus type, spacing and layout rules. The States and EdgeStates boards hold the screen states.
+- Every later page has its board: Landing, Slate (Midnight and Light), Fixture, Avoid, Live, Ledger, Audit and audit history, Pricing, Auth, Account, Legal. Each feature builds from its own board(s).
 - If the canvas and this spec disagree, this spec wins, and the canvas gets updated.
+
+**App navigation** (decided 2026-11-27):
+- Mobile BottomNav (below `lg`) has five slots in the same order for everyone. Only the last slot changes:
+
+  | Who | Slots |
+  |---|---|
+  | Member (free or paid) | Slate · Live · Audit · Ledger · Account |
+  | Guest | Slate · Live · Audit · Ledger · Sign in |
+
+  Icons (lucide): Slate `LayoutList`, Live `Radio`, Audit `ReceiptText`, Ledger `ChartColumn`, Account `CircleUser`, Sign in `LogIn`. The Ledger stays in the guest bar because it is the public proof of trust. The canvas's separate guest bar (Home · Slate · Live · Audit · Sign in) is not used. Guests reach the landing page through the wordmark in AppHeader.
+- At `lg` and above, AppHeader shows the same destinations as text links. Its actions slot holds "Sign in" for guests and the account avatar for members, which opens the Account page.
+- The caller picks the item set from the session. BottomNav itself stays unaware of auth.
+- Account settings uses the same `ThemeToggle` and device only `sx-theme` value; no theme is stored on the profile. Notification switches are not shown until push notifications ship (scope Deferred).
 
 **Data model sketch**: no database change. The only persisted value is the theme choice: `localStorage["sx-theme"]` holds `"dark"` (Midnight) or `"light"`, and next-themes owns it. No profile column, by decision. Nothing about the theme ever reaches the server.
 
@@ -147,14 +163,17 @@ Animation: `@theme` defines `--animate-skeleton-pulse: pulse 1.4s cubic-bezier(0
 | shadcn primitives: `button`, `input`, `label`, `checkbox`, `tabs`, `sheet`, `card`, `skeleton` | `src/components/ui/` | shadcn defaults; `Button` sizes `default` (h-11), `lg` (h-12), `icon` (size-11) | themed primitives | added with the shadcn CLI, then restyled through tokens only |
 | `ThemeToggle` | `src/components/theme-toggle.tsx` | none | sun icon in Midnight, moon in Light; `aria-label` names the target mode | client component; until mounted, renders the same 44px button with `aria-label="Switch theme"` and no icon, to avoid a hydration mismatch |
 | `ThemeProvider` | `src/app/providers.tsx` (wraps the existing `QueryClientProvider`) | none | next-themes provider | `next-themes` at version 0.4.6 or later; `attribute="class"`, `defaultTheme="dark"`, `enableSystem={false}`, `themes={["light","dark"]}`, `storageKey="sx-theme"`, `disableTransitionOnChange` |
-| `ClassificationBadge` | `src/features/predictions/classification-badge.tsx` | `classification: Classification`, `size?: "sm" \| "md"` (`sm` for dense slate rows, `md` for the drawer) | pill with the label from the PRD map and a leading lucide icon (`aria-hidden`): `STRONG` uses `CircleCheck`, `MODERATE` uses `CircleMinus`, `HIGH_RISK_AVOID` uses `TriangleAlert`, `INSUFFICIENT_DATA` uses `CircleHelp` | not interactive, so not a target. `Classification` is the union `STRONG \| MODERATE \| HIGH_RISK_AVOID \| INSUFFICIENT_DATA`; once the slate API exists, it is replaced by the generated type in `api.gen.ts` |
+| `ClassificationBadge`, `SignalBars` | `src/features/predictions/classification-badge.tsx` | `classification: Classification`, `size?: "sm" \| "md"` (`sm` for dense slate rows, `md` for the drawer); `SignalBars` takes `lit: 0 \| 1 \| 2 \| 3` | pill with the label from the PRD map and leading `SignalBars` (`aria-hidden`, `data-lit`): lit bars use `currentColor`, unlit bars the same colour at 25% opacity, and `0` draws three dashed outlines | not interactive, so not a target. `Classification` is the union `STRONG \| MODERATE \| HIGH_RISK_AVOID \| INSUFFICIENT_DATA`; once the slate API exists, it is replaced by the generated type in `api.gen.ts` |
 | `ErrorState` | `src/components/error-state.tsx` | `kind: ErrorKind \| "offline"`, `requestId?: string \| null`, `onAction?: () => void`, `title?`, `body?` (overrides) | icon, title, cause line, one action, and "Error reference {requestId}" in mono | `role="alert"`; copy from `errorCopy`. A `callback` action calls `onAction` (the button is hidden if none is given). A `link` action renders `<a href>` from the map |
 | `errorCopy`, `isErrorKind`, `toErrorKind` | `src/lib/error-copy.ts` | `errorCopy: Record<ErrorKind \| "offline", { title, body, action: { label, type: "callback" \| "link", href?: string } }>`; `isErrorKind(k: string): k is ErrorKind`; `toErrorKind(error: unknown): ErrorKind \| "offline"` | data and helpers | `ErrorKind` is a string union mirroring `backend/app/core/errors.py`: `invalid`, `unauthorized`, `forbidden`, `not_found`, `conflict`, `rate_limited`, `unavailable`, `internal`. `toErrorKind` returns, in order: `"offline"` for a `TypeError` while `typeof navigator !== "undefined" && navigator.onLine === false`; `ApiError.kind` if `isErrorKind`; otherwise `"internal"` |
-| `EmptyState` | `src/components/empty-state.tsx` | `title`, `body`, `action?: { label, onClick \| href }` | centred icon, title, body, optional action | no `role="alert"` |
+| `EmptyState` | `src/components/empty-state.tsx` | `title`, `body`, `icon?`, `illustration?: string` (a `public/illustrations/` path), `action?: { label, onClick \| href }` | centred icon tile, or the illustration through `next/image` with `alt=""`, then title, body, optional action | no `role="alert"` |
 | `AdSlot` | `src/components/ad-slot.tsx` | `size: AdSize`, `viewerTier: "guest" \| "free" \| "premium"`, `placement?`, `className?` | `null`, or an `<aside aria-label="Advertisement">` (`"Advertisement, <placement>"` when `placement` is set, so several slots on one page stay unique landmarks) with a fixed size box (`max-w-full overflow-hidden`) and an "ADVERTISEMENT" label | `AdSize` and the smallest breakpoint each one shows at: `320x50`, `320x100`, `300x250` and `native` (fluid width, 110px tall) show at every width; `728x90` and `970x90` from `md` (768px) up; `300x600` from `xl` (1280px) up. Below its breakpoint a slot renders `hidden` |
 | `ResponsibleGamblingNote` | `src/components/responsible-gambling-note.tsx` | `variant: "inline" \| "footer"` | "18+ only. Statistical analysis, not guaranteed outcomes. Bet responsibly." | replaces the hard coded footer text in `layout.tsx` |
-| `AppHeader` | `src/components/app-header.tsx` | `nav?: { href, label }[]`, `actions?: ReactNode` | the wordmark "SignalXI" in `font-display` (no logo file exists; the "XI" uses `text-primary`), nav (lg and up), ThemeToggle, actions slot | the "Sign in" button is passed in by the auth feature, not built here |
-| `BottomNav` | `src/components/bottom-nav.tsx` | `items: { href, label, icon }[]` | fixed bar, `lg:hidden`, `pb-[env(safe-area-inset-bottom)]`, `aria-current="page"` on the active item | the items come from the caller. `/dev/ui` renders the canvas set with `#` links: Slate (`LayoutList`), Slip audit (`ReceiptText`), Ledger (`ChartColumn`), Account (`CircleUser`) |
+| `AppHeader` | `src/components/app-header.tsx` | `nav?: { href, label }[]`, `activeHref?: string`, `actions?: ReactNode` | `BrandMark` plus the wordmark "SignalXI" in `font-display` (the "XI" uses `text-primary`) in one home link named "SignalXI"; nav (lg and up) with `aria-current="page"` and the `raised` surface on the active item; ThemeToggle; actions slot | the "Sign in" button is passed in by the auth feature, not built here |
+| `BottomNav` | `src/components/bottom-nav.tsx` | `items: { href, label, icon }[]` | fixed bar, `lg:hidden`, `pb-[env(safe-area-inset-bottom)]`, `aria-current="page"` on the active item | the items come from the caller. `/dev/ui` renders both sets from *App navigation* (member and guest) with `#` links |
+| `BrandMark` | `src/components/brand-mark.tsx` | `className?` | the logo from the canvas Logo board: three bars on one rising cut in `primary`, the ball in `foreground`, `aria-hidden` | geometry copied point for point from the canvas; token fills so it follows the theme |
+| `BrandLoader` | `src/components/brand-loader.tsx` | `label?` (default "Loading"), `className?` | the mark with `motion-safe:animate-signal-bar` on each bar (0, 120, 240ms delays) and `motion-safe:animate-signal-ball` on the ball, plus the label | `role="status"`, `aria-live="polite"`; keyframes `signal-bar` and `signal-ball` live in `globals.css` `@theme` (1.2s loop) |
+| `Sheet` sides | `src/components/ui/sheet.tsx` | `side?: "top" \| "right" \| "bottom" \| "left" \| "responsive"` | `bottom` and `responsive` add a decorative handle (`bg-control`), `rounded-t-[28px]`, `border-control` top edge and safe area padding; `responsive` switches to a right panel (`lg:max-w-md`, no handle) from `lg`; scrim `bg-black/60`; title in `font-display` | Radix Dialog underneath, so focus trap and Escape come for free |
 | `SiteFooter` | `src/components/site-footer.tsx` | none | ResponsibleGamblingNote (footer variant) only | no links ship yet (Terms and Privacy come with their pages); rendered by the root layout |
 | Error routes | `src/app/not-found.tsx`, `src/app/error.tsx`, `src/app/global-error.tsx` | Next.js conventions | not found copy, `ErrorState` with `kind="internal"`, and plain HTML | `error.tsx` ignores `digest` and shows no reference line. `global-error.tsx` uses inline styles and system fonts only (the root layout may have failed), and its button calls `location.reload()` |
 | Preview route | `src/app/dev/ui/page.tsx` | none | every part, every state, Midnight and Light panels side by side | calls `notFound()` when `env.NEXT_PUBLIC_APP_ENV === "production"`. Each panel is a wrapper (one with `className="dark"`, one with `className="light"` scoped to override `.dark`) that sets its own `bg-background text-foreground` |
@@ -193,7 +212,7 @@ The `/` links are placeholders. The auth and billing features change the `unauth
 - Components never hold colour literals; colour comes only from tokens (AC-4). Theme switching is a class change, never a prop drilled through.
 - Midnight is the default for everyone who hasn't chosen otherwise. The phone's colour setting is never read.
 - An `AdSlot` never renders for a `premium` viewer. One never appears inside a pick card, the fixture drawer, sign in, checkout, a slip audit, or an error or empty state. Callers own placement, and `design.md` states the rule.
-- Skeletons copy the real layout's shape and size. Spinners are only allowed inside buttons.
+- Skeletons copy the real layout's shape and size, and stay the default for lists. `BrandLoader` is only for a first app load or a whole screen with no layout yet. Spinners are only allowed inside buttons.
 - `src/components/` and `src/lib/` stay domain free. The only domain part, `ClassificationBadge`, lives in `src/features/predictions/`.
 
 **Security model**: the theme is a public preference held on the device; nothing sensitive is stored. The `/dev/ui` preview shows only sample data and is 404 in production. `AdSlot` loads no third party script in this feature, so no consent is needed yet. The network spec must add consent (feature 22) before any ad script ships. `ErrorState` shows only the request id, never the raw server message, so no internal detail leaks.
@@ -234,6 +253,7 @@ The `/` links are placeholders. The auth and billing features change the `unauth
 
   Verifies **AC-3**, **AC-14**.
 - Guard: an architecture test fails if any file under `src/components/` (except `ui/`) or `src/features/` matches a hex, `rgb(`, `hsl(` or `oklch(` colour, or an arbitrary colour class. Verifies **AC-4**.
+- Loader and drawers: unit tests check that `BrandLoader` is a polite status with a decorative logo and that its four animated parts use `motion-safe:` classes; that `ClassificationBadge` sets `data-lit` 3, 2, 1, 0; that `EmptyState` renders a given illustration with `alt=""`. `/dev/ui` screenshots at 390px and 1366px confirm the bottom sheet and the right panel. Verifies **AC-5**, **AC-15**, **AC-16**.
 - Motion: a unit test checks that `Skeleton` uses `motion-safe:animate-skeleton-pulse`. jsdom can't evaluate CSS, so the 1.4s duration is checked on the `@theme` token. Verifies **AC-7**.
 
 ## Build plan
@@ -263,6 +283,7 @@ Tracer Bullet: first one thin thread through every layer (font loading, tokens, 
 7. Add the shell: `BottomNav` and `SiteFooter` with `ResponsibleGamblingNote`. Wire the footer into `layout.tsx`, replacing the inline footer. Satisfies **AC-6**.
 8. Complete `/dev/ui`: every part in both themes side by side, and every state (ready, loading, error per kind, empty, offline), plus every ad size. Extend the axe and target size tests to the full page. Add the cold load budget e2e test. Satisfies **AC-6**, **AC-11**, **AC-12**, **AC-14**, **AC-3**.
 9. Write `frontend/design.md` (type, palettes, contrast rules, spacing and radius, badges, verdict colours, ad inventory and rules, states). Link the canvas, and save PNG exports of its boards under `docs/design/` so teammates without canvas access can see them. Satisfies **AC-13**.
+10. Adopt the 2026-11-27 canvas: `BrandMark` in `AppHeader` with `activeHref`; `SignalBars` in `ClassificationBadge`; the `bottom` and `responsive` Sheet sides; `BrandLoader` with its CSS keyframes; the canvas illustrations in `public/illustrations/` and logo files in `public/brand/`, extracted as is; `EmptyState` `illustration`; `/dev/ui` with member and guest tab bars, both drawers and the loader; unit tests for each. Satisfies **AC-5**, **AC-6**, **AC-13**, **AC-15**, **AC-16**. (Built 2026-11-27.)
 
 ## Consequences
 
@@ -278,6 +299,8 @@ Tracer Bullet: first one thin thread through every layer (font loading, tokens, 
 - `next-themes` is a new runtime dependency, and the toggle must render a placeholder until mounted (a small hydration cost).
 - A theme choice doesn't follow the user to a second device, by decision.
 - Ads are off in production until a later spec. Until then the slots, when enabled in preview, are labelled empty boxes.
+- The extracted SVG files in `public/` keep the canvas colours, so they don't follow the theme. That is fine for icons, social cards and the illustrations (drawn on their own palette), but the in app logo must stay the `BrandMark` component.
+- Animation stays in CSS for now. If a later screen needs timeline or physics animation that CSS can't do, adding a library such as GSAP is its own decision against the 2MB budget.
 - `ClassificationBadge` starts with a hand written union, which must be swapped for the generated API type once the slate endpoint exists, or the two can drift.
 
 **Neutral**:
@@ -287,8 +310,13 @@ Tracer Bullet: first one thin thread through every layer (font loading, tokens, 
 ## Follow-up
 
 - [ ] Choose the ad network (AdSense, Ad Manager or a Nigerian network) in its own spec, with cookie consent (feature 22), an 18+ ad category policy, and turning `NEXT_PUBLIC_ADS_ENABLED` on.
-- [ ] Bring the remaining canvas boards (fixture drawer, slip audit, ledger, pricing) into the new fonts and both themes before their features are built. They exist only in the first canvas, in the old style.
+- [x] Bring the remaining canvas boards (fixture drawer, slip audit, ledger, pricing) into the new fonts and both themes before their features are built. Done in the 2026-11-27 canvas.
+- [ ] Update `ui-showcase.tsx` to the five slot member and guest sets from *App navigation* (it still shows the old four: Slate, Slip audit, Ledger, Account). Belongs to the open `/dev/ui` milestone.
+- [ ] Click through the new canvas once in a browser before building pages; the designer could not render it, so layout glitches are unchecked.
+- [ ] Canvas fix: SlateMobile shows the member bar to guests. Redraw the guest version with the *App navigation* guest set.
+- [ ] Pause account (7, 30 or 90 days) on the responsible gambling board is deferred, not in v1 (scope Deferred). Mark it on the canvas as post launch.
+- [ ] Hide the three notification switches on the Account boards in v1, or mark them post launch.
 - [ ] Replace the hand written `Classification` union with the generated type from `api.gen.ts` when the slate endpoint lands (feature 5 or 6).
 - [ ] Set `NEXT_PUBLIC_APP_ENV=preview` on Vercel Preview, and `local` in `frontend/.env.example`.
-- [ ] Update the canvas to the AA fixes: Light avoid `#B02E24`, and the `control` outline token on inputs and checkboxes.
+- [ ] Update the canvas to the AA fixes: Light avoid `#B02E24`, and the `control` outline token on inputs and checkboxes. Still open: the 2026-11-27 Tokens board lists colours such as `#9E241C` and `#F6D3CF` that are not the code's Light `avoid` (`#B02E24`) and `avoid-bg` (`#FBE3E0`), despite the "matched to code" note. Code wins; ask the designer to recheck the Light badge rows.
 - [ ] Point the `unauthorized` and `forbidden` error links at the real sign in and pricing routes when those features land.

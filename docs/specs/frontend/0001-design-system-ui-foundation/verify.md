@@ -43,3 +43,14 @@ Setup: in `frontend/`, set `NEXT_PUBLIC_APP_ENV=local` and `NEXT_PUBLIC_ADS_ENAB
 - AC-10: ad steps, `ad-slot.test.tsx`
 - AC-13: design.md step
 - AC-14: budget command
+
+## Update 2026-11-27: new canvas (logo, signal bars, drawers, loader, nav sets)
+- [ ] At 390px, `/dev/ui` → "Open match drawer" → a bottom sheet with a handle, 28px top corners, close button top right; Escape closes it → AC-6
+- [ ] At 1366px, the same button → a right side panel (max 448px), no handle → AC-6
+- [ ] "Open kickoff alert prompt" → a bottom sheet with "Turn on alerts" and "Not now", both 44px or taller → AC-6, AC-12
+- [ ] Toggle "Navigation as" Member / Guest → the tab bar reads Slate · Live · Audit · Ledger · Account, then Sign in for guests → AC-6
+- [ ] The header shows the logo mark beside "SignalXI"; the link's accessible name is "SignalXI" → AC-6
+- [ ] Badges show 3, 2, 1 and 0 (dashed) signal bars for Strong, Moderate, Avoid, Insufficient, with the text label unchanged → AC-5
+- [ ] The Loading section shows the logo loader bouncing; with reduced motion emulated it stands still → AC-7
+- [ ] The Empty section shows the `no-results` illustration with `alt=""` → AC-6
+- [ ] `pnpm test:e2e tests/e2e/ui-foundation.spec.ts` (with the cached Chromium config on macOS 12) → axe clean in both themes, every control 44px → AC-12

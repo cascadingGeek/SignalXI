@@ -13,8 +13,9 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 |---|---------|-------|--------|
 | 1 | Stack & architecture | Foundation | done |
 | 2 | Coding standards & tooling | Foundation | in-progress |
-| 3 | Data model | Foundation | planned |
+| 3 | Data model | Foundation | in-progress |
 | 4 | Design system & UI foundation | Foundation | in-progress |
+| 31 | Competition coverage & phased rollout | Foundation | in-progress |
 | 5 | Prediction pipeline orchestration | Slice 1 | planned |
 | 6 | Football data ingestion | Slice 1 | planned |
 | 7 | Statistical engine | Slice 1 | planned |
@@ -39,6 +40,10 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 23 | SEO for public pages | Slice 7 | planned |
 | 24 | Funnel analytics & error monitoring | Slice 7 | planned |
 | 25 | Pipeline health alerts | Slice 7 | planned |
+| 29 | Live scores & line ups | Slice 8 | in-progress |
+| 30 | In play prediction shifts | Slice 8 | in-progress |
+| 32 | Where to watch links | Slice 8 | planned |
+| 33 | Official match highlights | Slice 8 | planned |
 
 ## Foundations
 
@@ -57,10 +62,20 @@ Conventions and tooling choices are captured in `AGENTS.md`; install them once t
 - [ ] Install the tooling: `/develop tooling`
 - [ ] Check it runs clean: `/test`
 
-### 3. Data model · needs a decision
+### 3. Data model · in-progress
 Fixtures, reports, picks, users, subscriptions and slip audits (PRD §9) as SQL migrations with RLS, mirrored by SQLAlchemy models.
 **Done when:** every later slice (pipeline writes, settlement, paywall, billing, slip audits) fits without a breaking migration, and pipeline writes are idempotent per fixture and slate date.
-- [ ] Design it (spec): `/architect data model`
+- [x] Design it (spec): `/architect data model`
+- [ ] Build it: `/develop data model`
+  - [ ] Thin thread: migration 1 prediction core, roles and revoked defaults, models, `save_revision`, Supavisor role login, idempotency and lock tests (AC-1, AC-2, AC-4, AC-5, AC-6, AC-7, AC-13)
+  - [ ] Grading strand and role matrix: settlement trigger, `pick_grade_events`, `PickRepository.grade`, permission tests for every role (AC-2, AC-3, AC-8)
+  - [ ] Migrations 2 and 3: profiles with signup trigger, prefs, payments, subscriptions, slip audits, with their tests (AC-1, AC-3, AC-9, AC-10, AC-11)
+  - [ ] Drift guard: models, enums and markets versus the database; per service `DATABASE_URL` documented (AC-1, AC-12)
+- [ ] Verify it: `/check verify data model`
+- [ ] Test it: `/test data model`
+- [ ] Review it (fresh model): `/check review data model`
+- [ ] Document it: `/document data model`
+Spec [_root 0005](../specs/_root/0005-data-model/index.md) · code in `supabase/migrations/`, `supabase/seed.sql`, `backend/app/models/`, `backend/app/repositories/`
 
 ### 4. Design system & UI foundation · in-progress
 Visual language, classification badges, cards, tabs and drawer primitives, tuned for mid range Android on slow networks.
@@ -72,11 +87,28 @@ Visual language, classification badges, cards, tabs and drawer primitives, tuned
   - [x] Error and empty states, error copy map, Next.js error pages (AC-8, AC-9)
   - [x] AdSlot, env flags, app shell (header, bottom nav, footer) (AC-6, AC-10)
   - [ ] Complete `/dev/ui`, budget e2e, `frontend/design.md` (AC-11, AC-12, AC-13, AC-14) · built; open: PNG exports of the canvas under `docs/design/`
+  - [ ] Adopt the v3 canvas: logo, signal bar badges, bottom and responsive drawers, CSS loader, illustrations (AC-5, AC-6, AC-13, AC-15, AC-16) · built 2026-11-27, not yet verified
 - [x] Verify it: `/check verify design system & UI foundation`
 - [x] Test it: `/test design system & UI foundation`
 - [x] Review it (fresh model): `/check review design system & UI foundation`
 - [x] Document it: `/document design system & UI foundation`
-Spec [frontend 0001](../specs/frontend/0001-design-system-ui-foundation/index.md) · design canvas https://claude.ai/artifact/1t4J5GyAVk5ogSjz5iuEug · code in `frontend/src/app/globals.css`, `frontend/src/components/`, `frontend/src/features/predictions/`, `frontend/design.md`
+Spec [frontend 0001](../specs/frontend/0001-design-system-ui-foundation/index.md) · design canvas https://claude.ai/artifact/Jtn9yosDQK2WZ1ztYMSpWN (updated 2026-11-27, replaces 1t4J5GyAVk5ogSjz5iuEug) · code in `frontend/src/app/globals.css`, `frontend/src/components/`, `frontend/src/features/predictions/`, `frontend/design.md`
+
+### 31. Competition coverage & phased rollout · in-progress
+Grow coverage beyond the PRD's nine competitions in three phases (European core and international football, then midweek and summer leagues, then African football), where each competition earns its place through a data gate and private shadow grading.
+**Done when:** a competition can only reach users after passing the data gate and shadow mode against a defined benchmark, shadow data never appears in any payload, the slate is capped at 40 by priority, and the ledger can be filtered by competition.
+- [x] Design it (spec): `/architect competition coverage`
+- [ ] Build it: `/develop competition coverage & phased rollout`
+  - [ ] Thin thread: competitions tables with grants and RLS, Big Five seed, gate job, pipeline order with visibility, published only reads, leak and grant tests (AC-1, AC-2, AC-3, AC-4, AC-6, AC-7, AC-8, AC-14)
+  - [ ] Weekly checks: benchmark, shadow report, underperformance alert (AC-10, AC-11)
+  - [ ] Slate rules: caps, frozen slate, cup rounds by season, national team eligibility (AC-4, AC-5, AC-9, AC-9b)
+  - [ ] Widen coverage: all phases and tournaments, replay, id drift check, `/competitions`, demotion rules (AC-1, AC-3, AC-10, AC-12, AC-13, AC-15)
+  - [ ] Pre launch proving: Phase 1 in shadow at least 4 weeks before launch (AC-16)
+- [ ] Verify it: `/check verify competition coverage`
+- [ ] Test it: `/test competition coverage`
+- [ ] Review it (fresh model): `/check review competition coverage`
+- [ ] Document it: `/document competition coverage`
+Spec [_root 0004](../specs/_root/0004-competition-coverage-rollout/index.md) · shapes the data model (#3), pipeline (#5, #8), engine (#7), settlement (#13) and ledger (#14)
 
 ## Slice 1: Real fixtures to a public slate
 
@@ -94,7 +126,7 @@ Pull upcoming fixtures, form, home and away splits, half splits and injuries fro
 
 ### 7. Statistical engine · needs a decision
 Pure math: Poisson goal model, half splits, form weighting and anomaly flags, producing baseline probabilities per market.
-**Done when:** given fixture stats it returns probabilities for every MVP market and data quality flags, deterministically, with no I/O.
+**Done when:** given fixture stats it returns probabilities for every MVP market in PRD §3.2 (including `UNDER_4_5_GOALS`, added 2026-11-27) and data quality flags, deterministically, with no I/O.
 - [ ] Design it (spec): `/architect statistical engine`
 
 ### 8. LLM fixture analysis · needs a decision
@@ -132,8 +164,8 @@ A job every 2 hours that fetches half time and full time scores and grades every
 - [ ] Design it (spec): `/architect post match settlement`
 
 ### 14. Performance ledger page · needs a decision
-Public accuracy tracker: the rolling 30 day rate on primary picks by classification, plus a "By Market Section" breakdown.
-**Done when:** the headline rate grades only primary picks, the section breakdown shows all settled alternatives, and history is browsable.
+Public accuracy tracker: a win/loss log of every graded pick, the rolling 30 day rate on primary picks by classification, a "By Market Section" breakdown, and ROI (return on investment) so users see what following the picks would have returned. ROI is a user request beyond PRD §5.4; the spec decides which odds and stake it assumes.
+**Done when:** the headline rate grades only primary picks, the section breakdown shows all settled alternatives, ROI is shown with its odds and stake basis stated, and history is browsable.
 - [ ] Design it (spec): `/architect performance ledger page`
 
 ### 15. Pre kickoff refresh · needs a decision
@@ -144,7 +176,7 @@ Refresh reports 90 minutes before major kickoff windows, so late team news is re
 ## Slice 4: Accounts and paywall
 
 ### 16. Accounts & sign in · needs a decision
-Sign up and sign in with no payment step; free members can save preferred competitions.
+Sign up and sign in with no payment step; free members can save preferred competitions. Owns the Account page from the 2026-11-27 canvas (plan, saved competitions, theme, devices, links to audit history, policies and sign out); the plan and device rows fill in as features 18 and 20 land.
 **Done when:** a guest can create a free account, sign in and out, and saved competitions persist.
 - [ ] Design it (spec): `/architect accounts & sign in`
 
@@ -216,10 +248,56 @@ Know when the daily job, refresh or settlement fails or produces an empty slate.
 **Done when:** a failed or empty run alerts you before users notice, with enough detail to rerun it.
 - [ ] Design it (spec): `/architect pipeline health alerts`
 
+## Slice 8: Live match experience
+
+User requests beyond the PRD, built after launch.
+
+### 29. Live scores & line ups · in-progress
+Show live scores and confirmed line ups for fixtures on the slate, across every competition the slate covers (PRD §5.1 lists nine), so users can follow how predicted games are going.
+**Done when:** scores and line ups on slate fixtures update during matches without visitor requests calling the football API (a job saves them, visitors read them), and a finished match hands over cleanly to settlement.
+- [x] Design it (spec): `/architect live scores & line ups`
+- [ ] Build it: `/develop live scores & line ups`
+  - [ ] Thin thread: migration, live job polling `fixtures?ids=`, `/live/slate` with private ETags and rate limits, live badge on the card (AC-1, AC-2, AC-3, AC-7, AC-9, AC-10, AC-14, AC-17)
+  - [ ] Events, stats and line ups: event reconciliation, `/live/fixtures/{id}`, the Live tab (AC-4, AC-5, AC-6, AC-8, AC-10)
+  - [ ] Failure handling and settlement hand off: stale rule, statuses, budget guard, restart rebuild, settle on finish (AC-1, AC-11, AC-12, AC-13, AC-14, AC-15)
+  - [ ] Disclosures and accessibility (AC-16)
+- [ ] Verify it: `/check verify live scores & line ups`
+- [ ] Test it: `/test live scores & line ups`
+- [ ] Review it (fresh model): `/check review live scores & line ups`
+- [ ] Document it: `/document live scores & line ups`
+Spec [_root 0002](../specs/_root/0002-live-scores-lineups/index.md)
+
+### 30. In play prediction shifts · in-progress
+Update a fixture's outlook while the match is running, as goals, cards and momentum change it.
+**Done when:** a spec records how live shifts fit PRD §1 (picks are made once in advance and visitors never trigger LLM calls), shifted picks are labelled as live and kept apart from the graded pre match pick, and the ledger still grades only what was published before kickoff.
+- [x] Design it (spec): `/architect in play prediction shifts`
+- [ ] Build it: `/develop in play prediction shifts`
+  - [ ] Thin thread: migration, market rules and in play model for main and goals markets, primary pick shift on the card (AC-1, AC-2, AC-3, AC-4, AC-8, AC-10, AC-11, AC-13)
+  - [ ] All markets and alternatives in the drawer (AC-1, AC-2, AC-5, AC-10, AC-11)
+  - [ ] States: decided, normal time freeze, stale, hysteresis, restart rebuild (AC-3, AC-5, AC-6, AC-7, AC-8)
+  - [ ] Guardrails: disclaimers, ledger isolation test, locked payload tests (AC-9, AC-10, AC-12)
+- [ ] Verify it: `/check verify in play prediction shifts`
+- [ ] Test it: `/test in play prediction shifts`
+- [ ] Review it (fresh model): `/check review in play prediction shifts`
+- [ ] Document it: `/document in play prediction shifts`
+Spec [_root 0003](../specs/_root/0003-in-play-prediction-shifts/index.md) · production flag gated on legal review (#22)
+
+### 32. Where to watch links · needs a decision
+Show which licensed broadcaster carries each fixture in Nigeria, with an outbound link, as the legal alternative to live streaming (unlicensed streams are out of scope).
+**Done when:** each slate fixture with a known Nigerian broadcaster shows it with a link, the source of broadcaster data is decided, and no stream is embedded or relayed.
+- [ ] Design it (spec): `/architect where to watch links`
+
+### 33. Official match highlights · needs a decision
+After full time, show highlights the leagues and clubs publish themselves in the fixture drawer.
+**Done when:** finished fixtures show an official highlight clip when one exists, only from licensed official sources, and missing clips show nothing rather than a broken player.
+- [ ] Design it (spec): `/architect official match highlights`
+
 ## Deferred
 Out of scope for the current build pass, kept so the plan stays honest.
 - **Weekly slate view**: a 7 day date filter, which means generating further ahead · needs a decision
-- **Push notifications**: optional alerts 1 hour before major kickoff windows · needs a decision
+- **Push notifications**: optional alerts 1 hour before major kickoff windows, plus the three notification switches on the Account board (hidden in v1) · needs a decision
+- **Animation library**: GSAP or similar for timeline or physics animation that CSS can't do; weigh it against the 2MB budget and reduced motion · needs a decision · from spec frontend 0001
+- **Pause account**: let a member pause their account for 7, 30 or 90 days from the responsible gambling page (designer proposal on the 2026-11-27 canvas, not in the PRD); decide what happens to paid plan time and sessions · needs a decision · from spec frontend 0001
 - **Ad network**: pick the network, add cookie consent and an 18+ ad policy, then turn `NEXT_PUBLIC_ADS_ENABLED` on; the slots already exist · needs a decision · from spec frontend 0001
 - **PRD §11 backlog**: Corners and Bookings sections, risk and form map, affiliate links, ads, native apps, social features
 
